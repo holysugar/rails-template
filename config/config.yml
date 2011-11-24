@@ -1,0 +1,14 @@
+defaults: &defaults
+
+development: &development
+  <<: *defaults
+
+staging:
+  <<: *defaults
+
+production: &production
+  <<: *defaults
+
+test: &test
+  <<: *defaults
+

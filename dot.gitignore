@@ -1,0 +1,14 @@
+.bundle
+db/*.sqlite3
+log/*.log
+tmp/
+.sass-cache/
+coverage
+report
+Guardfile
+.DS_Store
+public/cache
+public/system
+tags
+.*.sw?
+*~
