@@ -39,6 +39,7 @@ using[:heroku]      = yesno?('Use heroku? [n]>', :no)
 if using[:heroku]
   gem 'pg'
   gem 'thin'
+  gem 'foreman'
 else
   gem 'mysql2'
   gem 'unicorn'
@@ -54,7 +55,7 @@ if using[:slim]
 end
 
 using[:haml]        = yesno?('Use haml? [y]>', :yes) unless using[:slim]
-if using[:hamll]
+if using[:haml]
   gem 'haml'
   gem 'haml-rails'
 end
@@ -64,69 +65,64 @@ if using[:devise]
   gem 'devise'
 end
 
-using[:configatron] = yesno?('Use configatron? [y]>', :yes)
-gem 'configatron' if using[:configatron]
+using[:twitterbootstrap] = yesno?('Use twitter bootstrap? [y]>', :yes)
+if using[:twitterbootstrap]
+  gem 'twitter-bootstrap-rails', '>= 2.0.4'
+  gem 'formtastic-bootstrap', \
+#    :git => 'https://github.com/cgunther/formtastic-bootstrap',
+#    :branch => 'bootstrap2-rails3-2-formtastic-2-1'
+    :git => 'https://github.com/holysugar/formtastic-bootstrap',
+    :branch => 'bootstrap2-rails3-2-formtastic-2-2',
+    :require => 'formtastic-bootstrap'
+end
 
 gem 'bcrypt-ruby'
 gem 'rails-i18n'
 gem 'kaminari'
-gem 'jquery-rails'
+gem 'responders'
+gem 'page_title_helper'
+gem 'formtastic', ">= 2.2.0"
 
-gem 'inherited_resources'
-gem 'formtastic'
-gem 'friendly_id'
-gem 'airbrake' # needs generating configuration
-gem 'kaminari'
-gem 'rake-hooks'
-
-gem 'twitter-bootstrap-rails'
-gem 'compass'
-
+gem 'active_decorator'
+gem 'enumerize'
 gem 'therubyracer'
 
 # In the group
 append_file 'Gemfile', <<-EOG
 
 # Utilities
+#gem 'friendly_id'
+#gem 'airbrake' # needs generating configuration
+#gem 'compass'
 #gem 'draper'
-#gem 'rails3_acts_as_paranoid'
 #gem 'paper_trail'
 #gem 'validates_email_format_of', :git => 'git://github.com/alexdunae/validates_email_format_of.git'
 #gem 'rack-contrib', :require => 'rack/contrib'
-#gem 'omniauth'
-#gem 'oa-openid'
-#gem 'cancan'
-#gem "dalli"
-#gem "comma"
-#gem 'garb'
 #gem 'term-ansicolor'
-#gem 'carrierwave'
-#gem 'fog'
-
-#gem 'packed_fields', ">= 0.0.3"
-#gem 'sexy_to_param'
+#gem 'rake-hook'
+#gem 'configatron'
 
 group :development, :test do
-  gem 'ir_b'
   gem 'rspec-rails'
   gem 'factory_girl'
   gem 'factory_girl_rails'
   gem 'ci_reporter'
-  gem 'jasmine'
-  gem 'rails_best_practices', :require => false
-  gem 'annotate', :git => 'git://github.com/ctran/annotate_models.git', :require => false
   gem 'launchy'
   gem 'i18n_generators'
-  gem 'guard', :require => false
-  gem 'grit'
   gem 'rails-erd'
+  gem 'rails_best_practices', :require => false
+  gem 'pry'
+  #gem 'jasmine'
+  #gem 'annotate', :git => 'git://github.com/ctran/annotate_models.git', :require => false
+  #gem 'guard', :require => false
+  #gem 'spork'
+  #gem 'grit'
   #gem "email_spec"
 end
 
 group :test do
   gem 'rspec'
   gem 'capybara'
-  gem 'spork', '~> 0.9.0.rc'
   #gem 'capybara-webkit'
   #gem 'headless'
   gem 'shoulda-matchers'
@@ -158,17 +154,22 @@ create_file 'README'
 generate 'rspec:install'
 generate 'devise:install' if using[:devise]
 
+if using[:twitterbootstrap]
+  generate 'bootstrap:install'
+  wget 'config/initializers/formtastic.rb'
+  insert_into_file 'app/assets/stylesheets/application.css', " *= formtastic-bootstrap\n", :before => " *= require_self"
+end
+
 wget 'dot.gitignore', '.gitignore'
 wget 'config/config.yml' if using[:configatron]
-wget 'config/unicorn.rb' unless using[:heroku]
 
-# unless using_heroku
-#   run 'capify .'
-#   remove_file 'config/deploy.rb'
-#   wget 'deploy.rb', 'config/deploy.rb'
-#   wget 'deploy/production.rb', 'config/deploy/production.rb'
-#   wget 'deploy/staging.rb', 'config/deploy/staging.rb'
-# end
+if using[:heroku]
+  wget 'Procfile'
+else
+  wget 'config/unicorn.rb'
+#  run 'capify .'
+#  wget 'deploy.rb', 'config/deploy.rb'
+end
 
 generate 'i18n', 'ja'
 
