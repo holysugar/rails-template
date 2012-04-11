@@ -1,6 +1,10 @@
 # What's this
 
-My rails template for Rails 3.1
+My rails template for Rails >= 3.1
+
+# Usage
+
+    $ rails new appname -m https://raw.github.com/holysugar/rails-template/master/template.rb
 
 # TODO
 
